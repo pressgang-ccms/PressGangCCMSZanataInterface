@@ -13,6 +13,13 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+  
+  	<repositories>
+		<repository>
+			<id>Zanata</id>
+			<url>http://repository-zanata.forge.cloudbees.com/release/</url>
+		</repository>
+	</repositories>
 
   <dependencies>
     <dependency>
