@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.pressgangccms.utils.constants.CommonConstants;
 import org.zanata.common.LocaleId;
 
 
@@ -17,17 +16,7 @@ import org.zanata.common.LocaleId;
 public class ZanataLocaleManager
 {
 
-	private List<LocaleId> locales = new ArrayList<LocaleId>()
-	{
-		private static final long serialVersionUID = 5161718393080351107L;
-
-		{
-			for (final String locale : CommonConstants.LOCALES)
-			{
-				add(LocaleId.fromJavaName(locale));
-			}
-		}
-	};
+	private List<LocaleId> locales = new ArrayList<LocaleId>();
 
 	private static final Map<String, ZanataLocaleManager> projectToLocales = new HashMap<String, ZanataLocaleManager>();
 
@@ -60,6 +49,18 @@ public class ZanataLocaleManager
 		synchronized (this.locales)
 		{
 			this.locales = locales;
+		}
+	}
+	
+	public void addLocale(final LocaleId locale)
+	{
+		synchronized (this.locales)
+		{
+			if (this.locales == null)
+			{
+				this.locales = new ArrayList<LocaleId>();
+			}
+			this.locales.add(locale);
 		}
 	}
 

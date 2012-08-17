@@ -271,4 +271,9 @@ public class ZanataInterface
 	{
 		return localeManager.getLocales();
 	}
+	
+	public ZanataLocaleManager getLocaleManager()
+	{
+		return localeManager;
+	}
 }
