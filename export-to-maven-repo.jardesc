@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="/home/matthew/.m2/repository/org/jboss/pressgangccms/pressgang-ccms-zanata/1.0/pressgang-ccms-zanata-1.0.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/pressgang-ccms-zanata/export-to-maven-repo.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
+        <file path="/pressgang-ccms-zanata/.gitignore"/>
+        <javaElement handleIdentifier="=pressgang-ccms-zanata/src\/main\/java"/>
+        <file path="/pressgang-ccms-zanata/.classpath"/>
+        <file path="/pressgang-ccms-zanata/.project"/>
+        <file path="/pressgang-ccms-zanata/README.md"/>
+        <file path="/pressgang-ccms-zanata/pom.xml"/>
+    </selectedElements>
+</jardesc>
