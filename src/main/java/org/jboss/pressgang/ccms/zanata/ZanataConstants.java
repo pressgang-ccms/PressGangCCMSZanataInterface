@@ -1,4 +1,4 @@
-package org.jboss.pressgangccms.zanata;
+package org.jboss.pressgang.ccms.zanata;
 
 public final class ZanataConstants
 {

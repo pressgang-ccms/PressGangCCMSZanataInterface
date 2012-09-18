@@ -1,4 +1,4 @@
-package org.jboss.pressgangccms.zanata;
+package org.jboss.pressgang.ccms.zanata;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -7,7 +7,7 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.jboss.pressgangccms.utils.common.ExceptionUtilities;
+import org.jboss.pressgang.ccms.utils.common.ExceptionUtilities;
 import org.jboss.resteasy.client.ClientResponse;
 import org.zanata.common.LocaleId;
 import org.zanata.rest.client.ITranslationResources;
