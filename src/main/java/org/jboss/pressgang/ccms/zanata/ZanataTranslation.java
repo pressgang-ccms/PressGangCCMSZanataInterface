@@ -1,4 +1,4 @@
-package org.jboss.pressgangccms.zanata;
+package org.jboss.pressgang.ccms.zanata;
 
 import org.zanata.common.ContentState;
 import org.zanata.rest.dto.resource.TextFlowTarget;

@@ -1,4 +1,4 @@
-package org.jboss.pressgangccms.zanata;
+package org.jboss.pressgang.ccms.zanata;
 
 /**
  * A utility class to pull out the Zanata details from the system properties

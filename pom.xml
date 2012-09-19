@@ -137,7 +137,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
+			<version>4.10</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -150,13 +150,11 @@
 			<groupId>org.zanata</groupId>
 			<artifactId>zanata-common-util</artifactId>
 			<version>1.5.0</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.zanata</groupId>
 			<artifactId>zanata-rest-client</artifactId>
 			<version>1.5.0</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
@@ -168,7 +166,6 @@
 			<groupId>org.zanata</groupId>
 			<artifactId>zanata-common-api</artifactId>
 			<version>1.5.0</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>
