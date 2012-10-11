@@ -32,6 +32,11 @@ public class ZanataLocaleManager
 
 	}
 
+	/**
+	 * Get an Unmodifiable List of available Locales.
+	 * 
+	 * @return A new Unmodifiable List containing only valid Locales.
+	 */
 	public List<LocaleId> getLocales()
 	{
 		synchronized (locales)
@@ -39,6 +44,9 @@ public class ZanataLocaleManager
 			/*
 			 * return a read only copy of the list of locales as it stands now. we can't return a reference to the list, because it is possible that the
 			 * returned list will be looped over outside of a synchonization block, and edited at the same time.
+			 * 
+			 * Note from Lee: The above statement isn't properly correct since the returned list is a new list that doesn't reference the locales object directly.
+			 * However it is still handy to ensure that the list can't be modified as it makes sure that someone who wants to add a locale does it properly.
 			 */
 			return Collections.unmodifiableList(new ArrayList<LocaleId>(locales));
 		}
