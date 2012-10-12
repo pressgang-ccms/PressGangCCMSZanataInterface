@@ -15,7 +15,6 @@
 
 	<name>PressGang CCMS Zanata Interface</name>
 	<url>https://community.jboss.org/en/pressgang</url>
-
 	
 	<scm>
 		<url>https://github.com/mcasperson/PressGangCCMSZanataInterface</url>
