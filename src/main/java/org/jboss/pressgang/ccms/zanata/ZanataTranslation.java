@@ -19,6 +19,7 @@ public class ZanataTranslation
         this.contentState = contentState;
     }
     
+    @SuppressWarnings("deprecation")
     public ZanataTranslation(final TextFlowTarget textFlowTarget)
     {
         this.translation = textFlowTarget.getContent();

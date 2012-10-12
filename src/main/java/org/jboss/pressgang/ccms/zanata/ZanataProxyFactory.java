@@ -35,6 +35,6 @@ public class ZanataProxyFactory extends org.zanata.rest.client.ZanataProxyFactor
 
 	public URI getFixedTranslationResourcesURI(String projectSlug, String versionSlug)
 	{
-		return super.getTranslationResourcesURI(projectSlug, versionSlug);
+		return super.getResourceURI(projectSlug, versionSlug);
 	}
 }

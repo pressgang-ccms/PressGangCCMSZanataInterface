@@ -15,12 +15,12 @@ import javax.ws.rs.core.MediaType;
 
 import org.jboss.resteasy.client.ClientResponse;
 import org.zanata.rest.RestConstant;
-import org.zanata.rest.client.ITranslationResources;
+import org.zanata.rest.client.ISourceDocResource;
 import org.zanata.rest.dto.resource.Resource;
 
 @Produces({ MediaType.APPLICATION_XML })
 @Consumes({ MediaType.APPLICATION_XML })
-public interface IFixedTranslationResources extends ITranslationResources {
+public interface IFixedTranslationResources extends ISourceDocResource {
 
 	@POST
 	public ClientResponse<String> post(@HeaderParam(RestConstant.HEADER_USERNAME) String username, @HeaderParam(RestConstant.HEADER_API_KEY) String apikey, Resource messageBody, @QueryParam("ext") Set<String> extensions, @QueryParam("copyTrans") @DefaultValue("true") boolean copytrans);

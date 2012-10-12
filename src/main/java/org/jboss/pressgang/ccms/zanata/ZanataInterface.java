@@ -10,7 +10,8 @@ import javax.ws.rs.core.Response.Status;
 import org.jboss.pressgang.ccms.utils.common.ExceptionUtilities;
 import org.jboss.resteasy.client.ClientResponse;
 import org.zanata.common.LocaleId;
-import org.zanata.rest.client.ITranslationResources;
+import org.zanata.rest.client.ISourceDocResource;
+import org.zanata.rest.client.ITranslatedDocResource;
 import org.zanata.rest.dto.VersionInfo;
 import org.zanata.rest.dto.resource.Resource;
 import org.zanata.rest.dto.resource.ResourceMeta;
@@ -62,7 +63,7 @@ public class ZanataInterface
 		ClientResponse<Resource> response = null;
 		try
 		{
-			final ITranslationResources client = proxyFactory.getTranslationResources(details.getProject(), details.getVersion());
+			final ISourceDocResource client = proxyFactory.getSourceDocResource(details.getProject(), details.getVersion());
 			response = client.getResource(id, null);
 
 			final Status status = Response.Status.fromStatusCode(response.getStatus());
@@ -91,7 +92,7 @@ public class ZanataInterface
 	{
 		try
 		{
-			final ITranslationResources client = proxyFactory.getTranslationResources(details.getProject(), details.getVersion());
+			final ISourceDocResource client = proxyFactory.getSourceDocResource(details.getProject(), details.getVersion());
 			final ClientResponse<Resource> response = client.getResource(id, null);
 
 			final Status status = Response.Status.fromStatusCode(response.getStatus());
@@ -118,7 +119,7 @@ public class ZanataInterface
 	{
 		try
 		{
-			final ITranslationResources client = proxyFactory.getTranslationResources(details.getProject(), details.getVersion());
+			final ISourceDocResource client = proxyFactory.getSourceDocResource(details.getProject(), details.getVersion());
 			final ClientResponse<List<ResourceMeta>> response = client.get(null);
 
 			final Status status = Response.Status.fromStatusCode(response.getStatus());
@@ -174,12 +175,12 @@ public class ZanataInterface
 
 	public boolean getTranslationsExists(final String id, final LocaleId locale)
 	{
-		ITranslationResources client = null;
+		ITranslatedDocResource client = null;
 		ClientResponse<TranslationsResource> response = null;
 
 		try
 		{
-			client = proxyFactory.getTranslationResources(details.getProject(), details.getVersion());
+			client = proxyFactory.getTranslatedDocResource(details.getProject(), details.getVersion());
 			response = client.getTranslations(id, locale, null);
 
 			final Status status = Response.Status.fromStatusCode(response.getStatus());
@@ -215,7 +216,7 @@ public class ZanataInterface
 	{
 		try
 		{
-			final ITranslationResources client = proxyFactory.getTranslationResources(details.getProject(), details.getVersion());
+			final ITranslatedDocResource client = proxyFactory.getTranslatedDocResource(details.getProject(), details.getVersion());
 			final ClientResponse<TranslationsResource> response = client.getTranslations(id, locale, null);
 
 			final Status status = Response.Status.fromStatusCode(response.getStatus());
