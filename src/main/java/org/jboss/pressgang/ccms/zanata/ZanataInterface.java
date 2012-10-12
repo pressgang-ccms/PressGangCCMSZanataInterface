@@ -119,7 +119,7 @@ public class ZanataInterface {
 
     public boolean createFile(final Resource resource) {
         try {
-            final IFixedTranslationResources client = proxyFactory.getFixedTranslationResources(details.getProject(),
+            final IFixedSourceDocResource client = proxyFactory.getFixedTranslationResources(details.getProject(),
                     details.getVersion());
             final ClientResponse<String> response = client
                     .post(details.getUsername(), details.getToken(), resource, null, true);
@@ -200,7 +200,7 @@ public class ZanataInterface {
 
     public TranslationsResource deleteResource(final String id) {
         try {
-            final IFixedTranslationResources client = proxyFactory.getFixedTranslationResources(details.getProject(),
+            final IFixedSourceDocResource client = proxyFactory.getFixedTranslationResources(details.getProject(),
                     details.getVersion());
             final ClientResponse<String> response = client.deleteResource(details.getUsername(), details.getToken(), id);
 

@@ -30,8 +30,8 @@ public class ZanataProxyFactory extends org.zanata.rest.client.ZanataProxyFactor
         super(base, username, apiKey, executor, clientApiVersion, logHttp);
     }
 
-    public IFixedTranslationResources getFixedTranslationResources(String projectSlug, String versionSlug) {
-        return createProxy(IFixedTranslationResources.class, getFixedTranslationResourcesURI(projectSlug, versionSlug));
+    public IFixedSourceDocResource getFixedTranslationResources(String projectSlug, String versionSlug) {
+        return createProxy(IFixedSourceDocResource.class, getFixedTranslationResourcesURI(projectSlug, versionSlug));
     }
 
     public URI getFixedTranslationResourcesURI(String projectSlug, String versionSlug) {

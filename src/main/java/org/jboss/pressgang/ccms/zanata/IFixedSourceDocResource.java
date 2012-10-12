@@ -20,7 +20,7 @@ import org.zanata.rest.dto.resource.Resource;
 
 @Produces({ MediaType.APPLICATION_XML })
 @Consumes({ MediaType.APPLICATION_XML })
-public interface IFixedTranslationResources extends ISourceDocResource {
+public interface IFixedSourceDocResource extends ISourceDocResource {
 
 	@POST
 	public ClientResponse<String> post(@HeaderParam(RestConstant.HEADER_USERNAME) String username, @HeaderParam(RestConstant.HEADER_API_KEY) String apikey, Resource messageBody, @QueryParam("ext") Set<String> extensions, @QueryParam("copyTrans") @DefaultValue("true") boolean copytrans);
