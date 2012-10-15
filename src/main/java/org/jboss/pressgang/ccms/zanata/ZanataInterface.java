@@ -42,10 +42,10 @@ public class ZanataInterface {
             URI = new URI(details.getServer());
         } catch (URISyntaxException e) {
         }
-        final VersionInfo versionInfo = VersionUtility.getVersionInfo(ZanataProxyFactory.class);
+        final VersionInfo versionInfo = VersionUtility.getVersionInfo(LocaleId.class);
         if (versionInfo.getVersionNo() == null || versionInfo.getVersionNo().isEmpty()
                 || versionInfo.getVersionNo().equals("unknown"))
-            versionInfo.setVersionNo("1.5.0");
+            versionInfo.setVersionNo("1.6.0");
 
         proxyFactory = new ZanataProxyFactory(URI, details.getUsername(), details.getToken(), versionInfo);
         localeManager = ZanataLocaleManager.getInstance(details.getProject());

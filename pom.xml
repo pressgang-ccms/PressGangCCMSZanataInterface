@@ -31,6 +31,11 @@
 			<id>Zanata</id>
 			<url>http://repository-zanata.forge.cloudbees.com/release/</url>
 		</repository>
+		<repository>
+			<id>oss-sonatype-repo</id>
+			<name>OSS Sonatype repository</name>
+			<url>https://oss.sonatype.org/content/groups/public/</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
