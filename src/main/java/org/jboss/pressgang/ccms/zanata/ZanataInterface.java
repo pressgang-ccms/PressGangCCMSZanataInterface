@@ -76,9 +76,10 @@ public class ZanataInterface {
     }
 
     public Resource getZanataResource(final String id) {
+        ClientResponse<Resource> response = null;
         try {
             final ISourceDocResource client = proxyFactory.getSourceDocResource(details.getProject(), details.getVersion());
-            final ClientResponse<Resource> response = client.getResource(id, null);
+            response = client.getResource(id, null);
 
             final Status status = Response.Status.fromStatusCode(response.getStatus());
 
@@ -91,15 +92,23 @@ public class ZanataInterface {
             }
         } catch (final Exception ex) {
             ExceptionUtilities.handleException(ex);
+        } finally {
+            /*
+             * If you are using RESTEasy client framework, and returning a Response from your service method, you will
+             * explicitly need to release the connection.
+             */
+            if (response != null)
+                response.releaseConnection();
         }
 
         return null;
     }
 
     public List<ResourceMeta> getZanataResources() {
+        ClientResponse<List<ResourceMeta>> response = null;
         try {
             final ISourceDocResource client = proxyFactory.getSourceDocResource(details.getProject(), details.getVersion());
-            final ClientResponse<List<ResourceMeta>> response = client.get(null);
+            response = client.get(null);
 
             final Status status = Response.Status.fromStatusCode(response.getStatus());
 
@@ -112,17 +121,24 @@ public class ZanataInterface {
             }
         } catch (final Exception ex) {
             ExceptionUtilities.handleException(ex);
+        } finally {
+            /*
+             * If you are using RESTEasy client framework, and returning a Response from your service method, you will
+             * explicitly need to release the connection.
+             */
+            if (response != null)
+                response.releaseConnection();
         }
 
         return null;
     }
 
     public boolean createFile(final Resource resource) {
+        ClientResponse<String> response = null;
         try {
             final IFixedSourceDocResource client = proxyFactory.getFixedTranslationResources(details.getProject(),
                     details.getVersion());
-            final ClientResponse<String> response = client
-                    .post(details.getUsername(), details.getToken(), resource, null, true);
+            response = client.post(details.getUsername(), details.getToken(), resource, null, true);
 
             final Status status = Response.Status.fromStatusCode(response.getStatus());
 
@@ -139,6 +155,13 @@ public class ZanataInterface {
 
         } catch (final Exception ex) {
             ExceptionUtilities.handleException(ex);
+        } finally {
+            /*
+             * If you are using RESTEasy client framework, and returning a Response from your service method, you will
+             * explicitly need to release the connection.
+             */
+            if (response != null)
+                response.releaseConnection();
         }
 
         return false;
@@ -177,10 +200,11 @@ public class ZanataInterface {
     }
 
     public TranslationsResource getTranslations(final String id, final LocaleId locale) {
+        ClientResponse<TranslationsResource> response = null;
         try {
             final ITranslatedDocResource client = proxyFactory.getTranslatedDocResource(details.getProject(),
                     details.getVersion());
-            final ClientResponse<TranslationsResource> response = client.getTranslations(id, locale, null);
+            response = client.getTranslations(id, locale, null);
 
             final Status status = Response.Status.fromStatusCode(response.getStatus());
 
@@ -193,16 +217,24 @@ public class ZanataInterface {
             }
         } catch (final Exception ex) {
             ExceptionUtilities.handleException(ex);
+        } finally {
+            /*
+             * If you are using RESTEasy client framework, and returning a Response from your service method, you will
+             * explicitly need to release the connection.
+             */
+            if (response != null)
+                response.releaseConnection();
         }
 
         return null;
     }
 
     public TranslationsResource deleteResource(final String id) {
+        ClientResponse<String> response = null;
         try {
             final IFixedSourceDocResource client = proxyFactory.getFixedTranslationResources(details.getProject(),
                     details.getVersion());
-            final ClientResponse<String> response = client.deleteResource(details.getUsername(), details.getToken(), id);
+            response = client.deleteResource(details.getUsername(), details.getToken(), id);
 
             final Status status = Response.Status.fromStatusCode(response.getStatus());
 
@@ -216,6 +248,13 @@ public class ZanataInterface {
             }
         } catch (final Exception ex) {
             ExceptionUtilities.handleException(ex);
+        } finally {
+            /*
+             * If you are using RESTEasy client framework, and returning a Response from your service method, you will
+             * explicitly need to release the connection.
+             */
+            if (response != null)
+                response.releaseConnection();
         }
 
         return null;
