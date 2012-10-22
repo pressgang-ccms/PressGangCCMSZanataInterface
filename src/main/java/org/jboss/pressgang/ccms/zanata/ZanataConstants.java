@@ -29,5 +29,5 @@ public final class ZanataConstants {
     /**
      * The system property that identifies the time that should be waited in between each zanata call.
      */
-    public static final String ZANATA_CALL_WAIT_TIME_PROPERTY = "topicIndex.zanataCallWaitTime";
+    public static final String MIN_ZANATA_CALL_INTERNAL_PROPERTY = "topicIndex.minZanataCallInterval";
 }
