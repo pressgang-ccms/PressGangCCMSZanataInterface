@@ -25,4 +25,9 @@ public final class ZanataConstants {
      * The system property that identifies the zanata API token
      */
     public static final String ZANATA_TOKEN_PROPERTY = "topicIndex.zanataToken";
+    
+    /**
+     * The system property that identifies the time that should be waited in between each zanata call.
+     */
+    public static final String ZANATA_CALL_WAIT_TIME_PROPERTY = "topicIndex.zanataCallWaitTime";
 }

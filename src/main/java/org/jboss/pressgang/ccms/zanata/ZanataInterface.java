@@ -31,7 +31,7 @@ public class ZanataInterface {
     /**
      * Constructs the interface with a custom project
      * 
-     * @param projectOverride The name of the Zanata project to work with, which override the default specidie
+     * @param projectOverride The name of the Zanata project to work with, which will override the default specified
      */
     public ZanataInterface(final String projectOverride) {
         details = new ZanataDetails(defaultDetails);
@@ -51,30 +51,12 @@ public class ZanataInterface {
         localeManager = ZanataLocaleManager.getInstance(details.getProject());
     }
 
-    public boolean getZanataResourceExists(final String id) {
-        ClientResponse<Resource> response = null;
-        try {
-            final ISourceDocResource client = proxyFactory.getSourceDocResource(details.getProject(), details.getVersion());
-            response = client.getResource(id, null);
-
-            final Status status = Response.Status.fromStatusCode(response.getStatus());
-
-            return status == Response.Status.OK;
-
-        } catch (final Exception ex) {
-            ExceptionUtilities.handleException(ex);
-        } finally {
-            /*
-             * If you are using RESTEasy client framework, and returning a Response from your service method, you will
-             * explicitly need to release the connection.
-             */
-            if (response != null)
-                response.releaseConnection();
-        }
-
-        return false;
-    }
-
+    /**
+     * Get a specific Source Document from Zanata.
+     * 
+     * @param id The ID of the Document in Zanata.
+     * @return The Zanata Source Document that matches id passed, or null if it doesn't exist.
+     */
     public Resource getZanataResource(final String id) {
         ClientResponse<Resource> response = null;
         try {
@@ -104,6 +86,11 @@ public class ZanataInterface {
         return null;
     }
 
+    /**
+     * Get all of the Document ID's available from Zanata for the configured project.
+     * 
+     * @return A List of Resource Objects that contain information such as Document ID's.
+     */
     public List<ResourceMeta> getZanataResources() {
         ClientResponse<List<ResourceMeta>> response = null;
         try {
@@ -133,6 +120,12 @@ public class ZanataInterface {
         return null;
     }
 
+    /**
+     * Create a Document in Zanata.
+     * 
+     * @param resource The resource data to be used by Zanata to create the Document.
+     * @return True if the document was successfully created, otherwise false.
+     */
     public boolean createFile(final Resource resource) {
         ClientResponse<String> response = null;
         try {
@@ -167,38 +160,14 @@ public class ZanataInterface {
         return false;
     }
 
-    public boolean getTranslationsExists(final String id, final LocaleId locale) {
-        ITranslatedDocResource client = null;
-        ClientResponse<TranslationsResource> response = null;
-
-        try {
-            client = proxyFactory.getTranslatedDocResource(details.getProject(), details.getVersion());
-            response = client.getTranslations(id, locale, null);
-
-            final Status status = Response.Status.fromStatusCode(response.getStatus());
-
-            /* Remove the locale if it is forbidden */
-            if (status == Response.Status.FORBIDDEN) {
-                localeManager.removeLocale(locale);
-            }
-
-            return status == Response.Status.OK;
-
-        } catch (final Exception ex) {
-            ExceptionUtilities.handleException(ex);
-
-        } finally {
-            /*
-             * If you are using RESTEasy client framework, and returning a Response from your service method, you will
-             * explicitly need to release the connection.
-             */
-            if (response != null)
-                response.releaseConnection();
-        }
-
-        return false;
-    }
-
+    /**
+     * Get a Translation from Zanata using the Zanata Document ID and Locale.
+     * 
+     * @param id The ID of the document in Zanata.
+     * @param locale The locale of the translation to find.
+     * @return null if the translation doesn't exist or an error occurred, otherwise the TranslationResource containing the
+     *         Translation Strings (TextFlowTargets).
+     */
     public TranslationsResource getTranslations(final String id, final LocaleId locale) {
         ClientResponse<TranslationsResource> response = null;
         try {
@@ -229,7 +198,15 @@ public class ZanataInterface {
         return null;
     }
 
-    public TranslationsResource deleteResource(final String id) {
+    /**
+     * Delete a Document from Zanata.
+     * 
+     * Note: This method should be used with extreme care.
+     * 
+     * @param id The ID of the document in Zanata to be deleted.
+     * @return True if the document was successfully deleted, otherwise false.
+     */
+    public boolean deleteResource(final String id) {
         ClientResponse<String> response = null;
         try {
             final IFixedSourceDocResource client = proxyFactory.getFixedTranslationResources(details.getProject(),
@@ -242,6 +219,7 @@ public class ZanataInterface {
                 final String entity = response.getEntity();
                 if (entity.trim().length() != 0)
                     System.out.println(entity);
+                return true;
             } else {
                 System.out.println("REST call to deleteResource() did not complete successfully. HTTP response code was "
                         + status.getStatusCode() + ". Reason was " + status.getReasonPhrase());
@@ -257,13 +235,23 @@ public class ZanataInterface {
                 response.releaseConnection();
         }
 
-        return null;
+        return false;
     }
 
+    /**
+     * Get a list of locales that can be synced to Zanata.
+     * 
+     * @return A List of LocaleId objects that can be used to syn with Zanata.
+     */
     public List<LocaleId> getZanataLocales() {
         return localeManager.getLocales();
     }
 
+    /**
+     * Get the Manager that handles what locales can be synced against in Zanata.
+     * 
+     * @return The ZanataLocaleManager object that manages the available locales.
+     */
     public ZanataLocaleManager getLocaleManager() {
         return localeManager;
     }
