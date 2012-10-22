@@ -304,6 +304,9 @@ public class ZanataInterface {
      * than the wait interval specified.
      */
     private void performZanataRESTCallWaiting() {
+        /* No need to wait when the call interval is nothing */
+        if (minZanataRESTCallInterval <= 0) return;
+        
         long currentTime = System.currentTimeMillis();
         /* Check if the current time is less than the last call plus the minimum wait time */
         if (currentTime < (lastRESTCallTime + minZanataRESTCallInterval)) {
