@@ -19,23 +19,52 @@ import org.zanata.rest.dto.resource.TranslationsResource;
 import org.zanata.util.VersionUtility;
 
 public class ZanataInterface {
-    private final static ZanataDetails defaultDetails = new ZanataDetails();
+    private final static ZanataDetails DEFAULT_DETAILS = new ZanataDetails();
+
     private final ZanataDetails details;
     private final ZanataProxyFactory proxyFactory;
     private final ZanataLocaleManager localeManager;
+    private final Long minZanataRESTCallInterval;
+    private long lastRESTCallTime = 0;
 
+    /**
+     * Constructs the interface.
+     */
     public ZanataInterface() {
-        this(defaultDetails.getProject());
+        this(0, DEFAULT_DETAILS.getProject());
+    }
+
+    /**
+     * Constructs the interface.
+     * 
+     * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
+     *        is specified in seconds.
+     */
+    public ZanataInterface(final double minZanataRESTCallInterval) {
+        this(minZanataRESTCallInterval, DEFAULT_DETAILS.getProject());
     }
 
     /**
      * Constructs the interface with a custom project
      * 
-     * @param projectOverride The name of the Zanata project to work with, which will override the default specified
+     * @param projectOverride The name of the Zanata project to work with, which will override the default specified.
      */
     public ZanataInterface(final String projectOverride) {
-        details = new ZanataDetails(defaultDetails);
+        this(0, projectOverride);
+    }
+
+    /**
+     * Constructs the interface with a custom project
+     * 
+     * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
+     *        is specified in seconds.
+     * @param projectOverride The name of the Zanata project to work with, which will override the default specified.
+     */
+    public ZanataInterface(final double minZanataRESTCallInterval, final String projectOverride) {
+        details = new ZanataDetails(DEFAULT_DETAILS);
         details.setProject(projectOverride);
+
+        this.minZanataRESTCallInterval = (long) (minZanataRESTCallInterval * 1000);
 
         URI URI = null;
         try {
@@ -55,7 +84,7 @@ public class ZanataInterface {
      * Get a specific Source Document from Zanata.
      * 
      * @param id The ID of the Document in Zanata.
-     * @return The Zanata Source Document that matches id passed, or null if it doesn't exist.
+     * @return The Zanata Source Document that matches the id passed, or null if it doesn't exist.
      */
     public Resource getZanataResource(final String id) {
         ClientResponse<Resource> response = null;
@@ -81,6 +110,9 @@ public class ZanataInterface {
              */
             if (response != null)
                 response.releaseConnection();
+            
+            /* Perform a small wait to ensure zanata isn't overloaded */
+            performZanataRESTCallWaiting();
         }
 
         return null;
@@ -115,6 +147,9 @@ public class ZanataInterface {
              */
             if (response != null)
                 response.releaseConnection();
+            
+            /* Perform a small wait to ensure zanata isn't overloaded */
+            performZanataRESTCallWaiting();
         }
 
         return null;
@@ -155,6 +190,9 @@ public class ZanataInterface {
              */
             if (response != null)
                 response.releaseConnection();
+            
+            /* Perform a small wait to ensure zanata isn't overloaded */
+            performZanataRESTCallWaiting();
         }
 
         return false;
@@ -193,6 +231,9 @@ public class ZanataInterface {
              */
             if (response != null)
                 response.releaseConnection();
+            
+            /* Perform a small wait to ensure zanata isn't overloaded */
+            performZanataRESTCallWaiting();
         }
 
         return null;
@@ -207,6 +248,7 @@ public class ZanataInterface {
      * @return True if the document was successfully deleted, otherwise false.
      */
     public boolean deleteResource(final String id) {
+        performZanataRESTCallWaiting();
         ClientResponse<String> response = null;
         try {
             final IFixedSourceDocResource client = proxyFactory.getFixedTranslationResources(details.getProject(),
@@ -254,5 +296,24 @@ public class ZanataInterface {
      */
     public ZanataLocaleManager getLocaleManager() {
         return localeManager;
+    }
+
+    /**
+     * Sleep for a small amount of time to allow zanata to process other data between requests if the time between calls is less
+     * than the wait interval specified.
+     */
+    private void performZanataRESTCallWaiting() {
+        long currentTime = System.currentTimeMillis();
+        /* Check if the current time is less than the last call plus the minimum wait time */
+        if (currentTime < (lastRESTCallTime + minZanataRESTCallInterval)) {
+            try {
+                Thread.sleep(minZanataRESTCallInterval);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        /* Set the current time to the last call time. */
+        lastRESTCallTime = System.currentTimeMillis();
     }
 }
