@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.jboss.pressgang.ccms.utils.common.ExceptionUtilities;
+import org.jboss.pressgang.ccms.utils.common.VersionUtilities;
 import org.jboss.resteasy.client.ClientResponse;
 import org.zanata.common.LocaleId;
 import org.zanata.rest.client.ISourceDocResource;
@@ -16,7 +17,6 @@ import org.zanata.rest.dto.VersionInfo;
 import org.zanata.rest.dto.resource.Resource;
 import org.zanata.rest.dto.resource.ResourceMeta;
 import org.zanata.rest.dto.resource.TranslationsResource;
-import org.zanata.util.VersionUtility;
 
 public class ZanataInterface {
     private final static ZanataDetails DEFAULT_DETAILS = new ZanataDetails();
@@ -71,10 +71,11 @@ public class ZanataInterface {
             URI = new URI(details.getServer());
         } catch (URISyntaxException e) {
         }
-        final VersionInfo versionInfo = VersionUtility.getVersionInfo(LocaleId.class);
-        if (versionInfo.getVersionNo() == null || versionInfo.getVersionNo().isEmpty()
-                || versionInfo.getVersionNo().equals("unknown"))
-            versionInfo.setVersionNo("1.6.0");
+        
+        // Get the Version Details from the Zanata Common API library. 
+        final VersionInfo versionInfo = new VersionInfo();
+        versionInfo.setVersionNo(VersionUtilities.getAPIVersion(LocaleId.class));
+        versionInfo.setBuildTimeStamp(VersionUtilities.getAPIBuildTimestamp(LocaleId.class));
 
         proxyFactory = new ZanataProxyFactory(URI, details.getUsername(), details.getToken(), versionInfo);
         localeManager = ZanataLocaleManager.getInstance(details.getProject());
