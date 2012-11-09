@@ -98,9 +98,6 @@ public class ZanataInterface {
             if (status == Response.Status.OK) {
                 final Resource entity = response.getEntity();
                 return entity;
-            } else {
-                System.out.println("REST call to getResource() did not complete successfully. HTTP response code was "
-                        + status.getStatusCode() + ". Reason was " + status.getReasonPhrase());
             }
         } catch (final Exception ex) {
             ExceptionUtilities.handleException(ex);
