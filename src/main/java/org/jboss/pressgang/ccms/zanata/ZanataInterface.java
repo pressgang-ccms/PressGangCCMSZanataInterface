@@ -1,11 +1,10 @@
 package org.jboss.pressgang.ccms.zanata;
 
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.jboss.pressgang.ccms.utils.common.ExceptionUtilities;
 import org.jboss.pressgang.ccms.utils.common.VersionUtilities;
@@ -36,9 +35,9 @@ public class ZanataInterface {
 
     /**
      * Constructs the interface.
-     * 
+     *
      * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
-     *        is specified in seconds.
+     *                                  is specified in seconds.
      */
     public ZanataInterface(final double minZanataRESTCallInterval) {
         this(minZanataRESTCallInterval, DEFAULT_DETAILS.getProject());
@@ -46,7 +45,7 @@ public class ZanataInterface {
 
     /**
      * Constructs the interface with a custom project
-     * 
+     *
      * @param projectOverride The name of the Zanata project to work with, which will override the default specified.
      */
     public ZanataInterface(final String projectOverride) {
@@ -55,10 +54,10 @@ public class ZanataInterface {
 
     /**
      * Constructs the interface with a custom project
-     * 
+     *
      * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
-     *        is specified in seconds.
-     * @param projectOverride The name of the Zanata project to work with, which will override the default specified.
+     *                                  is specified in seconds.
+     * @param projectOverride           The name of the Zanata project to work with, which will override the default specified.
      */
     public ZanataInterface(final double minZanataRESTCallInterval, final String projectOverride) {
         details = new ZanataDetails(DEFAULT_DETAILS);
@@ -71,7 +70,7 @@ public class ZanataInterface {
             URI = new URI(details.getServer());
         } catch (URISyntaxException e) {
         }
-        
+
         // Get the Version Details from the Zanata Common API library. 
         final VersionInfo versionInfo = new VersionInfo();
         versionInfo.setVersionNo(VersionUtilities.getAPIVersion(LocaleId.class));
@@ -83,7 +82,7 @@ public class ZanataInterface {
 
     /**
      * Get a specific Source Document from Zanata.
-     * 
+     *
      * @param id The ID of the Document in Zanata.
      * @return The Zanata Source Document that matches the id passed, or null if it doesn't exist.
      */
@@ -106,8 +105,7 @@ public class ZanataInterface {
              * If you are using RESTEasy client framework, and returning a Response from your service method, you will
              * explicitly need to release the connection.
              */
-            if (response != null)
-                response.releaseConnection();
+            if (response != null) response.releaseConnection();
             
             /* Perform a small wait to ensure zanata isn't overloaded */
             performZanataRESTCallWaiting();
@@ -118,7 +116,7 @@ public class ZanataInterface {
 
     /**
      * Get all of the Document ID's available from Zanata for the configured project.
-     * 
+     *
      * @return A List of Resource Objects that contain information such as Document ID's.
      */
     public List<ResourceMeta> getZanataResources() {
@@ -133,8 +131,9 @@ public class ZanataInterface {
                 final List<ResourceMeta> entities = response.getEntity();
                 return entities;
             } else {
-                System.out.println("REST call to get() did not complete successfully. HTTP response code was "
-                        + status.getStatusCode() + ". Reason was " + status.getReasonPhrase());
+                System.out.println(
+                        "REST call to get() did not complete successfully. HTTP response code was " + status.getStatusCode() + ". Reason " +
+                                "was " + status.getReasonPhrase());
             }
         } catch (final Exception ex) {
             ExceptionUtilities.handleException(ex);
@@ -143,8 +142,7 @@ public class ZanataInterface {
              * If you are using RESTEasy client framework, and returning a Response from your service method, you will
              * explicitly need to release the connection.
              */
-            if (response != null)
-                response.releaseConnection();
+            if (response != null) response.releaseConnection();
             
             /* Perform a small wait to ensure zanata isn't overloaded */
             performZanataRESTCallWaiting();
@@ -155,28 +153,27 @@ public class ZanataInterface {
 
     /**
      * Create a Document in Zanata.
-     * 
+     *
      * @param resource The resource data to be used by Zanata to create the Document.
      * @return True if the document was successfully created, otherwise false.
      */
     public boolean createFile(final Resource resource) {
         ClientResponse<String> response = null;
         try {
-            final IFixedSourceDocResource client = proxyFactory.getFixedTranslationResources(details.getProject(),
-                    details.getVersion());
+            final IFixedSourceDocResource client = proxyFactory.getFixedSourceDocResources(details.getProject(), details.getVersion());
             response = client.post(details.getUsername(), details.getToken(), resource, null, true);
 
             final Status status = Response.Status.fromStatusCode(response.getStatus());
 
             if (status == Response.Status.CREATED) {
                 final String entity = response.getEntity();
-                if (entity.trim().length() != 0)
-                    System.out.println(entity);
+                if (entity.trim().length() != 0) System.out.println(entity);
 
                 return true;
             } else {
-                System.out.println("REST call to createResource() did not complete successfully. HTTP response code was "
-                        + status.getStatusCode() + ". Reason was " + status.getReasonPhrase());
+                System.out.println(
+                        "REST call to createResource() did not complete successfully. HTTP response code was " + status.getStatusCode() +
+                                ". Reason was " + status.getReasonPhrase());
             }
 
         } catch (final Exception ex) {
@@ -186,8 +183,7 @@ public class ZanataInterface {
              * If you are using RESTEasy client framework, and returning a Response from your service method, you will
              * explicitly need to release the connection.
              */
-            if (response != null)
-                response.releaseConnection();
+            if (response != null) response.releaseConnection();
             
             /* Perform a small wait to ensure zanata isn't overloaded */
             performZanataRESTCallWaiting();
@@ -198,8 +194,8 @@ public class ZanataInterface {
 
     /**
      * Get a Translation from Zanata using the Zanata Document ID and Locale.
-     * 
-     * @param id The ID of the document in Zanata.
+     *
+     * @param id     The ID of the document in Zanata.
      * @param locale The locale of the translation to find.
      * @return null if the translation doesn't exist or an error occurred, otherwise the TranslationResource containing the
      *         Translation Strings (TextFlowTargets).
@@ -207,8 +203,7 @@ public class ZanataInterface {
     public TranslationsResource getTranslations(final String id, final LocaleId locale) {
         ClientResponse<TranslationsResource> response = null;
         try {
-            final ITranslatedDocResource client = proxyFactory.getTranslatedDocResource(details.getProject(),
-                    details.getVersion());
+            final ITranslatedDocResource client = proxyFactory.getTranslatedDocResource(details.getProject(), details.getVersion());
             response = client.getTranslations(id, locale, null);
 
             final Status status = Response.Status.fromStatusCode(response.getStatus());
@@ -227,8 +222,7 @@ public class ZanataInterface {
              * If you are using RESTEasy client framework, and returning a Response from your service method, you will
              * explicitly need to release the connection.
              */
-            if (response != null)
-                response.releaseConnection();
+            if (response != null) response.releaseConnection();
             
             /* Perform a small wait to ensure zanata isn't overloaded */
             performZanataRESTCallWaiting();
@@ -239,9 +233,9 @@ public class ZanataInterface {
 
     /**
      * Delete a Document from Zanata.
-     * 
+     * <p/>
      * Note: This method should be used with extreme care.
-     * 
+     *
      * @param id The ID of the document in Zanata to be deleted.
      * @return True if the document was successfully deleted, otherwise false.
      */
@@ -249,20 +243,19 @@ public class ZanataInterface {
         performZanataRESTCallWaiting();
         ClientResponse<String> response = null;
         try {
-            final IFixedSourceDocResource client = proxyFactory.getFixedTranslationResources(details.getProject(),
-                    details.getVersion());
+            final IFixedSourceDocResource client = proxyFactory.getFixedSourceDocResources(details.getProject(), details.getVersion());
             response = client.deleteResource(details.getUsername(), details.getToken(), id);
 
             final Status status = Response.Status.fromStatusCode(response.getStatus());
 
             if (status == Response.Status.OK) {
                 final String entity = response.getEntity();
-                if (entity.trim().length() != 0)
-                    System.out.println(entity);
+                if (entity.trim().length() != 0) System.out.println(entity);
                 return true;
             } else {
-                System.out.println("REST call to deleteResource() did not complete successfully. HTTP response code was "
-                        + status.getStatusCode() + ". Reason was " + status.getReasonPhrase());
+                System.out.println(
+                        "REST call to deleteResource() did not complete successfully. HTTP response code was " + status.getStatusCode() +
+                                ". Reason was " + status.getReasonPhrase());
             }
         } catch (final Exception ex) {
             ExceptionUtilities.handleException(ex);
@@ -271,8 +264,7 @@ public class ZanataInterface {
              * If you are using RESTEasy client framework, and returning a Response from your service method, you will
              * explicitly need to release the connection.
              */
-            if (response != null)
-                response.releaseConnection();
+            if (response != null) response.releaseConnection();
         }
 
         return false;
@@ -280,7 +272,7 @@ public class ZanataInterface {
 
     /**
      * Get a list of locales that can be synced to Zanata.
-     * 
+     *
      * @return A List of LocaleId objects that can be used to syn with Zanata.
      */
     public List<LocaleId> getZanataLocales() {
@@ -289,7 +281,7 @@ public class ZanataInterface {
 
     /**
      * Get the Manager that handles what locales can be synced against in Zanata.
-     * 
+     *
      * @return The ZanataLocaleManager object that manages the available locales.
      */
     public ZanataLocaleManager getLocaleManager() {
@@ -303,7 +295,7 @@ public class ZanataInterface {
     private void performZanataRESTCallWaiting() {
         /* No need to wait when the call interval is nothing */
         if (minZanataRESTCallInterval <= 0) return;
-        
+
         long currentTime = System.currentTimeMillis();
         /* Check if the current time is less than the last call plus the minimum wait time */
         if (currentTime < (lastRESTCallTime + minZanataRESTCallInterval)) {

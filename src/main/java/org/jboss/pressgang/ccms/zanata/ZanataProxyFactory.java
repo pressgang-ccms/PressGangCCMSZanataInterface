@@ -8,7 +8,7 @@ import org.zanata.rest.dto.VersionInfo;
 /**
  * A class to override the functionality of the org.zanata.rest.client.ZanataProxyFactory and provide an method to get access to
  * the custom FixedTranslationResources endpoints.
- * 
+ *
  * @author lnewson
  */
 public class ZanataProxyFactory extends org.zanata.rest.client.ZanataProxyFactory {
@@ -30,11 +30,11 @@ public class ZanataProxyFactory extends org.zanata.rest.client.ZanataProxyFactor
         super(base, username, apiKey, executor, clientApiVersion, logHttp);
     }
 
-    public IFixedSourceDocResource getFixedTranslationResources(String projectSlug, String versionSlug) {
-        return createProxy(IFixedSourceDocResource.class, getFixedTranslationResourcesURI(projectSlug, versionSlug));
+    public IFixedSourceDocResource getFixedSourceDocResources(String projectSlug, String versionSlug) {
+        return createProxy(IFixedSourceDocResource.class, getFixedSourceDocResourcesURI(projectSlug, versionSlug));
     }
 
-    public URI getFixedTranslationResourcesURI(String projectSlug, String versionSlug) {
+    public URI getFixedSourceDocResourcesURI(String projectSlug, String versionSlug) {
         return super.getResourceURI(projectSlug, versionSlug);
     }
 }
