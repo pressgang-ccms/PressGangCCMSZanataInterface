@@ -6,9 +6,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import org.jboss.pressgang.ccms.utils.common.ExceptionUtilities;
 import org.jboss.pressgang.ccms.utils.common.VersionUtilities;
 import org.jboss.resteasy.client.ClientResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zanata.common.LocaleId;
 import org.zanata.rest.client.ISourceDocResource;
 import org.zanata.rest.client.ITranslatedDocResource;
@@ -18,6 +19,7 @@ import org.zanata.rest.dto.resource.ResourceMeta;
 import org.zanata.rest.dto.resource.TranslationsResource;
 
 public class ZanataInterface {
+    private static Logger log = LoggerFactory.getLogger(ZanataInterface.class);
     private final static ZanataDetails DEFAULT_DETAILS = new ZanataDetails();
 
     private final ZanataDetails details;
@@ -99,7 +101,7 @@ public class ZanataInterface {
                 return entity;
             }
         } catch (final Exception ex) {
-            ExceptionUtilities.handleException(ex);
+            log.error("Failed to retrieve the Zanata Source Document", ex);
         } finally {
             /*
              * If you are using RESTEasy client framework, and returning a Response from your service method, you will
@@ -131,12 +133,12 @@ public class ZanataInterface {
                 final List<ResourceMeta> entities = response.getEntity();
                 return entities;
             } else {
-                System.out.println(
+                log.error(
                         "REST call to get() did not complete successfully. HTTP response code was " + status.getStatusCode() + ". Reason " +
                                 "was " + status.getReasonPhrase());
             }
         } catch (final Exception ex) {
-            ExceptionUtilities.handleException(ex);
+            log.error("Failed to retrieve the list of Zanata Source Documents", ex);
         } finally {
             /*
              * If you are using RESTEasy client framework, and returning a Response from your service method, you will
@@ -167,17 +169,16 @@ public class ZanataInterface {
 
             if (status == Response.Status.CREATED) {
                 final String entity = response.getEntity();
-                if (entity.trim().length() != 0) System.out.println(entity);
+                if (entity.trim().length() != 0) log.info(entity);
 
                 return true;
             } else {
-                System.out.println(
-                        "REST call to createResource() did not complete successfully. HTTP response code was " + status.getStatusCode() +
-                                ". Reason was " + status.getReasonPhrase());
+                log.error("REST call to createResource() did not complete successfully. HTTP response code was " + status.getStatusCode() +
+                        ". Reason was " + status.getReasonPhrase());
             }
 
         } catch (final Exception ex) {
-            ExceptionUtilities.handleException(ex);
+            log.error("Failed to create the Zanata Document", ex);
         } finally {
             /*
              * If you are using RESTEasy client framework, and returning a Response from your service method, you will
@@ -216,7 +217,7 @@ public class ZanataInterface {
                 return retValue;
             }
         } catch (final Exception ex) {
-            ExceptionUtilities.handleException(ex);
+            log.error("Failed to retrieve the Zanata Translated Document", ex);
         } finally {
             /*
              * If you are using RESTEasy client framework, and returning a Response from your service method, you will
@@ -253,12 +254,11 @@ public class ZanataInterface {
                 if (entity.trim().length() != 0) System.out.println(entity);
                 return true;
             } else {
-                System.out.println(
-                        "REST call to deleteResource() did not complete successfully. HTTP response code was " + status.getStatusCode() +
-                                ". Reason was " + status.getReasonPhrase());
+                log.error("REST call to deleteResource() did not complete successfully. HTTP response code was " + status.getStatusCode() +
+                        ". Reason was " + status.getReasonPhrase());
             }
         } catch (final Exception ex) {
-            ExceptionUtilities.handleException(ex);
+            log.error("Failed to delete the Zanata Source Document", ex);
         } finally {
             /*
              * If you are using RESTEasy client framework, and returning a Response from your service method, you will
