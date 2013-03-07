@@ -1,25 +1,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.pressgang</groupId>
-        <artifactId>pressgang-parent</artifactId>
-        <version>1.5</version>
+        <groupId>org.jboss.pressgang.ccms</groupId>
+        <artifactId>pressgang-ccms-parent</artifactId>
+        <version>1.1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jboss.pressgang.ccms</groupId>
     <artifactId>pressgang-ccms-zanata</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>PressGang CCMS Zanata Interface</name>
     <url>https://community.jboss.org/en/pressgang</url>
 
     <scm>
-        <url>https://github.com/mcasperson/PressGangCCMSZanataInterface</url>
-        <connection>scm:git@github.com:mcasperson/PressGangCCMSZanataInterface.git</connection>
-        <developerConnection>scm:git@github.com:mcasperson/PressGangCCMSZanataInterface.git</developerConnection>
+        <url>https://github.com/pressgang-ccms/PressGangCCMSZanataInterface</url>
+        <connection>scm:git@github.com:pressgang-ccms/PressGangCCMSZanataInterface.git</connection>
+        <developerConnection>scm:git@github.com:pressgang-ccms/PressGangCCMSZanataInterface.git</developerConnection>
     </scm>
 
     <properties>
@@ -32,7 +31,7 @@
         <dependency>
             <groupId>org.jboss.pressgang.ccms</groupId>
             <artifactId>pressgang-ccms-utils</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${parent.version}</version>
         </dependency>
 
         <dependency>
