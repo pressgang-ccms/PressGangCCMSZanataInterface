@@ -251,7 +251,7 @@ public class ZanataInterface {
 
             if (status == Response.Status.OK) {
                 final String entity = response.getEntity();
-                if (entity.trim().length() != 0) System.out.println(entity);
+                if (entity.trim().length() != 0) log.info(entity);
                 return true;
             } else {
                 log.error("REST call to deleteResource() did not complete successfully. HTTP response code was " + status.getStatusCode() +
