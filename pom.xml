@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.pressgang.ccms</groupId>
-        <artifactId>pressgang-ccms-parent</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <groupId>org.jboss.pressgang</groupId>
+        <artifactId>pressgang-parent</artifactId>
+        <version>1.5</version>
     </parent>
 
     <groupId>org.jboss.pressgang.ccms</groupId>
@@ -22,30 +22,34 @@
     </scm>
 
     <properties>
-        <zanata.version>1.7.4</zanata.version>
+        <pressgang.ccms.version>1.1-SNAPSHOT</pressgang.ccms.version>
+        <zanata.version>2.0.1</zanata.version>
     </properties>
 
     <dependencies>
-
         <!-- PressGang CCMS libraries -->
         <dependency>
             <groupId>org.jboss.pressgang.ccms</groupId>
             <artifactId>pressgang-ccms-utils</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${pressgang.ccms.version}</version>
         </dependency>
 
+        <!-- Zanata REST API Libraries -->
+        <dependency>
+            <groupId>org.zanata</groupId>
+            <artifactId>zanata-rest-client</artifactId>
+            <version>${zanata.version}</version>
+        </dependency>
+
+        <!-- Testing Libraries -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.zanata</groupId>
-            <artifactId>zanata-rest-client</artifactId>
-            <version>${zanata.version}</version>
-        </dependency>
     </dependencies>
+
     <build>
         <pluginManagement>
             <plugins>
