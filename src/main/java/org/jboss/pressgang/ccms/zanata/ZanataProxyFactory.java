@@ -37,4 +37,8 @@ public class ZanataProxyFactory extends org.zanata.rest.client.ZanataProxyFactor
     public URI getFixedSourceDocResourcesURI(String projectSlug, String versionSlug) {
         return super.getResourceURI(projectSlug, versionSlug);
     }
+
+    public IFixedCopyTransResource getFixedCopyTransResource() {
+        return createProxy(IFixedCopyTransResource.class);
+    }
 }

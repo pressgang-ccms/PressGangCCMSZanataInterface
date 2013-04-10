@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.zanata.common.LocaleId;
 import org.zanata.rest.client.ISourceDocResource;
 import org.zanata.rest.client.ITranslatedDocResource;
+import org.zanata.rest.dto.CopyTransStatus;
 import org.zanata.rest.dto.VersionInfo;
 import org.zanata.rest.dto.resource.Resource;
 import org.zanata.rest.dto.resource.ResourceMeta;
@@ -271,6 +272,61 @@ public class ZanataInterface {
     }
 
     /**
+     * Run copy trans against a Source Document in zanata and then wait for it to complete
+     *
+     * @param zanataId The id of the document to run copytrans for.
+     * @param waitForFinish Wait for copytrans to finish running.
+     * @return True if copytrans was run successfully, otherwise false.
+     */
+    public boolean runCopyTrans(final String zanataId, boolean waitForFinish) {
+        log.debug("Running Zanata CopyTrans for " + zanataId);
+
+        ClientResponse<String> response = null;
+        try {
+            final IFixedCopyTransResource copyTransResource = proxyFactory.getFixedCopyTransResource();
+            copyTransResource.startCopyTrans(details.getProject(), details.getVersion(), zanataId, details.getUsername(),
+                    details.getToken());
+            performZanataRESTCallWaiting();
+
+            if (waitForFinish) {
+                while (!isCopyTransCompleteForSourceDocument(copyTransResource, zanataId)) {
+                    // Sleep for 1 second
+                    Thread.sleep(1000);
+                }
+            }
+
+            return true;
+        } catch (Exception e) {
+            log.error("Failed to run copyTrans for " + zanataId, e);
+        } finally {
+            /*
+             * If you are using RESTEasy client framework, and returning a Response from your service method, you will
+             * explicitly need to release the connection.
+             */
+            if (response != null) {
+                response.releaseConnection();
+            }
+
+            performZanataRESTCallWaiting();
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if copy trans has finished processing a source document.
+     *
+     * @param zanataId The Source Document id.
+     * @return True if the source document has finished processing otherwise false.
+     */
+    protected boolean isCopyTransCompleteForSourceDocument(final IFixedCopyTransResource copyTransResource, final String zanataId) {
+        final CopyTransStatus status = copyTransResource.getCopyTransStatus(details.getProject(), details.getVersion(), zanataId,
+                details.getUsername(), details.getToken());
+        performZanataRESTCallWaiting();
+        return status.getPercentageComplete() >= 100;
+    }
+
+    /**
      * Get a list of locales that can be synced to Zanata.
      *
      * @return A List of LocaleId objects that can be used to syn with Zanata.
@@ -286,6 +342,15 @@ public class ZanataInterface {
      */
     public ZanataLocaleManager getLocaleManager() {
         return localeManager;
+    }
+
+    /**
+     * Get the underlying ZanataProxyFactory that handles creating the proxies to the resources in Zanata.
+     *
+     * @return The ZanataProxyFactory object that creates the proxies.
+     */
+    public ZanataProxyFactory getProxyFactory() {
+        return proxyFactory;
     }
 
     /**
