@@ -155,16 +155,27 @@ public class ZanataInterface {
     }
 
     /**
-     * Create a Document in Zanata.
+     * Create a Document in Zanata and run CopyTrans.
      *
      * @param resource The resource data to be used by Zanata to create the Document.
      * @return True if the document was successfully created, otherwise false.
      */
     public boolean createFile(final Resource resource) {
+        return createFile(resource, true);
+    }
+
+    /**
+     * Create a Document in Zanata.
+     *
+     * @param resource The resource data to be used by Zanata to create the Document.
+     * @param copyTrans Run copytrans on the server
+     * @return True if the document was successfully created, otherwise false.
+     */
+    public boolean createFile(final Resource resource, boolean copyTrans) {
         ClientResponse<String> response = null;
         try {
             final IFixedSourceDocResource client = proxyFactory.getFixedSourceDocResources(details.getProject(), details.getVersion());
-            response = client.post(details.getUsername(), details.getToken(), resource, null, true);
+            response = client.post(details.getUsername(), details.getToken(), resource, null, copyTrans);
 
             final Status status = Response.Status.fromStatusCode(response.getStatus());
 
