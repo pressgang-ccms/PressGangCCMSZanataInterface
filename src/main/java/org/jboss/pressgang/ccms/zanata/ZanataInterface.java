@@ -73,7 +73,7 @@ public class ZanataInterface {
      *                                  is specified in seconds.
      * @param zanataDetails             The zanata details to be used for this interface.
      */
-    protected ZanataInterface(final double minZanataRESTCallInterval, final ZanataDetails zanataDetails) {
+    public ZanataInterface(final double minZanataRESTCallInterval, final ZanataDetails zanataDetails) {
         this(minZanataRESTCallInterval, zanataDetails, null);
     }
 
