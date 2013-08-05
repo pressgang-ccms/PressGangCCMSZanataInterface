@@ -63,8 +63,33 @@ public class ZanataInterface {
      * @param projectOverride           The name of the Zanata project to work with, which will override the default specified.
      */
     public ZanataInterface(final double minZanataRESTCallInterval, final String projectOverride) {
-        details = new ZanataDetails(DEFAULT_DETAILS);
-        details.setProject(projectOverride);
+        this(minZanataRESTCallInterval, new ZanataDetails(DEFAULT_DETAILS), projectOverride);
+    }
+
+    /**
+     * Constructs the interface with a custom project
+     *
+     * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
+     *                                  is specified in seconds.
+     * @param zanataDetails             The zanata details to be used for this interface.
+     */
+    protected ZanataInterface(final double minZanataRESTCallInterval, final ZanataDetails zanataDetails) {
+        this(minZanataRESTCallInterval, zanataDetails, null);
+    }
+
+    /**
+     * Constructs the interface with a custom project
+     *
+     * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
+     *                                  is specified in seconds.
+     * @param zanataDetails             The zanata details to be used for this interface.
+     * @param projectOverride           The name of the Zanata project to work with, which will override the default specified.
+     */
+    protected ZanataInterface(final double minZanataRESTCallInterval, final ZanataDetails zanataDetails, final String projectOverride) {
+        details = zanataDetails;
+        if (projectOverride != null) {
+            details.setProject(projectOverride);
+        }
 
         this.minZanataRESTCallInterval = (long) (minZanataRESTCallInterval * 1000);
 

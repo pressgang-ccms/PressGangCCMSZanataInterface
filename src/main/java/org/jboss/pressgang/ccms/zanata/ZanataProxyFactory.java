@@ -6,7 +6,7 @@ import org.jboss.resteasy.client.ClientExecutor;
 import org.zanata.rest.dto.VersionInfo;
 
 /**
- * A class to override the functionality of the org.zanata.rest.client.ZanataProxyFactory and provide an method to get access to
+ * A class to override the functionality of the org.zanata.rest.client.ZanataProxyFactory and provide a method to get access to
  * the custom FixedTranslationResources endpoints.
  *
  * @author lnewson
