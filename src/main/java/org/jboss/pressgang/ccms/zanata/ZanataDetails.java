@@ -67,6 +67,10 @@ public class ZanataDetails {
     }
 
     public String returnUrl() {
-        return server + (server.endsWith("/") ? "" : "/") + "seam/resource/restv1/projects/p/" + project + "/iterations/i/" + version + "/r";
+        if (server == null) {
+            return "";
+        } else {
+            return server + (server.endsWith("/") ? "" : "/") + "seam/resource/restv1/projects/p/" + project + "/iterations/i/" + version + "/r";
+        }
     }
 }
