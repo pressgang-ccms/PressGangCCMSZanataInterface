@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.jboss.pressgang.ccms.utils.common.CollectionUtilities;
 import org.jboss.pressgang.ccms.utils.common.VersionUtilities;
 import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
@@ -14,10 +15,13 @@ import org.zanata.common.LocaleId;
 import org.zanata.rest.client.ISourceDocResource;
 import org.zanata.rest.client.ITranslatedDocResource;
 import org.zanata.rest.dto.CopyTransStatus;
+import org.zanata.rest.dto.ProcessStatus;
 import org.zanata.rest.dto.VersionInfo;
 import org.zanata.rest.dto.resource.Resource;
 import org.zanata.rest.dto.resource.ResourceMeta;
 import org.zanata.rest.dto.resource.TranslationsResource;
+import org.zanata.rest.service.AsynchronousProcessResource;
+import org.zanata.rest.service.CopyTransResource;
 
 public class ZanataInterface {
     private static Logger log = LoggerFactory.getLogger(ZanataInterface.class);
@@ -44,6 +48,17 @@ public class ZanataInterface {
      */
     public ZanataInterface(final double minZanataRESTCallInterval) {
         this(minZanataRESTCallInterval, DEFAULT_DETAILS.getProject());
+    }
+
+    /**
+     * Constructs the interface.
+     *
+     * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
+     *                                  is specified in seconds.
+     * @param disableSSLCert            Whether or not the SSL Certificate check should be performed.
+     */
+    public ZanataInterface(final double minZanataRESTCallInterval, final boolean disableSSLCert) {
+        this(minZanataRESTCallInterval, new ZanataDetails(DEFAULT_DETAILS), DEFAULT_DETAILS.getProject(), disableSSLCert);
     }
 
     /**
@@ -86,6 +101,20 @@ public class ZanataInterface {
      * @param projectOverride           The name of the Zanata project to work with, which will override the default specified.
      */
     protected ZanataInterface(final double minZanataRESTCallInterval, final ZanataDetails zanataDetails, final String projectOverride) {
+        this(minZanataRESTCallInterval, zanataDetails, projectOverride, false);
+    }
+
+    /**
+     * Constructs the interface with a custom project
+     *
+     * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
+     *                                  is specified in seconds.
+     * @param zanataDetails             The zanata details to be used for this interface.
+     * @param projectOverride           The name of the Zanata project to work with, which will override the default specified.
+     * @param disableSSLCert            Whether or not the SSL Certificate check should be performed.
+     */
+    protected ZanataInterface(final double minZanataRESTCallInterval, final ZanataDetails zanataDetails, final String projectOverride,
+            final boolean disableSSLCert) {
         details = zanataDetails;
         if (projectOverride != null) {
             details.setProject(projectOverride);
@@ -104,7 +133,7 @@ public class ZanataInterface {
         versionInfo.setVersionNo(VersionUtilities.getAPIVersion(LocaleId.class));
         versionInfo.setBuildTimeStamp(VersionUtilities.getAPIBuildTimestamp(LocaleId.class));
 
-        proxyFactory = new ZanataProxyFactory(URI, details.getUsername(), details.getToken(), versionInfo);
+        proxyFactory = new ZanataProxyFactory(URI, details.getUsername(), details.getToken(), versionInfo, false, disableSSLCert);
         localeManager = ZanataLocaleManager.getInstance(details.getProject());
     }
 
@@ -192,37 +221,39 @@ public class ZanataInterface {
     /**
      * Create a Document in Zanata.
      *
-     * @param resource The resource data to be used by Zanata to create the Document.
+     * @param resource  The resource data to be used by Zanata to create the Document.
      * @param copyTrans Run copytrans on the server
      * @return True if the document was successfully created, otherwise false.
      */
     public boolean createFile(final Resource resource, boolean copyTrans) {
-        ClientResponse<String> response = null;
         try {
-            final IFixedSourceDocResource client = proxyFactory.getFixedSourceDocResources(details.getProject(), details.getVersion());
-            response = client.post(details.getUsername(), details.getToken(), resource, null, copyTrans);
+            final AsynchronousProcessResource client = proxyFactory.getAsynchronousProcessResource();
+            ProcessStatus status = client.startSourceDocCreationOrUpdate(resource.getName(), details.getProject(), details.getVersion(),
+                    resource, null, false);
 
-            final Status status = Response.Status.fromStatusCode(response.getStatus());
+            // Loop until the process completes
+            while (status.getStatusCode() == ProcessStatus.ProcessStatusCode.Running || status.getStatusCode() ==
+                    ProcessStatus.ProcessStatusCode.Waiting) {
+                // Sleep for 1/2 second
+                Thread.sleep(500);
+                status = client.getProcessStatus(status.getUrl());
+            }
 
-            if (status == Response.Status.CREATED) {
-                final String entity = response.getEntity();
-                if (entity.trim().length() != 0) log.info(entity);
+            if (status.getStatusCode() == ProcessStatus.ProcessStatusCode.Finished) {
+                // Run copytrans if requested
+                if (copyTrans) {
+                    runCopyTrans(resource.getName(), false);
+                }
 
                 return true;
             } else {
                 log.error("REST call to createResource() did not complete successfully. HTTP response code was " + status.getStatusCode() +
-                        ". Reason was " + status.getReasonPhrase());
+                        ". Reason was " + CollectionUtilities.toSeperatedString(status.getMessages()));
             }
 
         } catch (final Exception ex) {
             log.error("Failed to create the Zanata Document", ex);
         } finally {
-            /*
-             * If you are using RESTEasy client framework, and returning a Response from your service method, you will
-             * explicitly need to release the connection.
-             */
-            if (response != null) response.releaseConnection();
-            
             /* Perform a small wait to ensure zanata isn't overloaded */
             performZanataRESTCallWaiting();
         }
@@ -281,8 +312,8 @@ public class ZanataInterface {
         performZanataRESTCallWaiting();
         ClientResponse<String> response = null;
         try {
-            final IFixedSourceDocResource client = proxyFactory.getFixedSourceDocResources(details.getProject(), details.getVersion());
-            response = client.deleteResource(details.getUsername(), details.getToken(), id);
+            final ISourceDocResource client = proxyFactory.getSourceDocResource(details.getProject(), details.getVersion());
+            response = client.deleteResource(id);
 
             final Status status = Response.Status.fromStatusCode(response.getStatus());
 
@@ -310,18 +341,16 @@ public class ZanataInterface {
     /**
      * Run copy trans against a Source Document in zanata and then wait for it to complete
      *
-     * @param zanataId The id of the document to run copytrans for.
+     * @param zanataId      The id of the document to run copytrans for.
      * @param waitForFinish Wait for copytrans to finish running.
      * @return True if copytrans was run successfully, otherwise false.
      */
     public boolean runCopyTrans(final String zanataId, boolean waitForFinish) {
         log.debug("Running Zanata CopyTrans for " + zanataId);
 
-        ClientResponse<String> response = null;
         try {
-            final IFixedCopyTransResource copyTransResource = proxyFactory.getFixedCopyTransResource();
-            copyTransResource.startCopyTrans(details.getProject(), details.getVersion(), zanataId, details.getUsername(),
-                    details.getToken());
+            final CopyTransResource copyTransResource = proxyFactory.getCopyTransResource();
+            copyTransResource.startCopyTrans(details.getProject(), details.getVersion(), zanataId);
             performZanataRESTCallWaiting();
 
             if (waitForFinish) {
@@ -335,14 +364,6 @@ public class ZanataInterface {
         } catch (Exception e) {
             log.error("Failed to run copyTrans for " + zanataId, e);
         } finally {
-            /*
-             * If you are using RESTEasy client framework, and returning a Response from your service method, you will
-             * explicitly need to release the connection.
-             */
-            if (response != null) {
-                response.releaseConnection();
-            }
-
             performZanataRESTCallWaiting();
         }
 
@@ -355,11 +376,10 @@ public class ZanataInterface {
      * @param zanataId The Source Document id.
      * @return True if the source document has finished processing otherwise false.
      */
-    protected boolean isCopyTransCompleteForSourceDocument(final IFixedCopyTransResource copyTransResource, final String zanataId) {
-        final CopyTransStatus status = copyTransResource.getCopyTransStatus(details.getProject(), details.getVersion(), zanataId,
-                details.getUsername(), details.getToken());
+    protected boolean isCopyTransCompleteForSourceDocument(final CopyTransResource copyTransResource, final String zanataId) {
+        final CopyTransStatus status = copyTransResource.getCopyTransStatus(details.getProject(), details.getVersion(), zanataId);
         performZanataRESTCallWaiting();
-        return status.getPercentageComplete() >= 100;
+        return !status.isInProgress();
     }
 
     /**
