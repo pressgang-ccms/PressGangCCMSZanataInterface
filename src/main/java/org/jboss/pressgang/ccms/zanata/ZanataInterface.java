@@ -18,6 +18,7 @@ import org.zanata.rest.dto.VersionInfo;
 import org.zanata.rest.dto.resource.Resource;
 import org.zanata.rest.dto.resource.ResourceMeta;
 import org.zanata.rest.dto.resource.TranslationsResource;
+import org.zanata.rest.service.CopyTransResource;
 
 public class ZanataInterface {
     private static Logger log = LoggerFactory.getLogger(ZanataInterface.class);
@@ -199,8 +200,8 @@ public class ZanataInterface {
     public boolean createFile(final Resource resource, boolean copyTrans) {
         ClientResponse<String> response = null;
         try {
-            final IFixedSourceDocResource client = proxyFactory.getFixedSourceDocResources(details.getProject(), details.getVersion());
-            response = client.post(details.getUsername(), details.getToken(), resource, null, copyTrans);
+            final ISourceDocResource client = proxyFactory.getSourceDocResource(details.getProject(), details.getVersion());
+            response = client.post(resource, null, copyTrans);
 
             final Status status = Response.Status.fromStatusCode(response.getStatus());
 
@@ -281,8 +282,8 @@ public class ZanataInterface {
         performZanataRESTCallWaiting();
         ClientResponse<String> response = null;
         try {
-            final IFixedSourceDocResource client = proxyFactory.getFixedSourceDocResources(details.getProject(), details.getVersion());
-            response = client.deleteResource(details.getUsername(), details.getToken(), id);
+            final ISourceDocResource client = proxyFactory.getSourceDocResource(details.getProject(), details.getVersion());
+            response = client.deleteResource(id);
 
             final Status status = Response.Status.fromStatusCode(response.getStatus());
 
@@ -317,11 +318,9 @@ public class ZanataInterface {
     public boolean runCopyTrans(final String zanataId, boolean waitForFinish) {
         log.debug("Running Zanata CopyTrans for " + zanataId);
 
-        ClientResponse<String> response = null;
         try {
-            final IFixedCopyTransResource copyTransResource = proxyFactory.getFixedCopyTransResource();
-            copyTransResource.startCopyTrans(details.getProject(), details.getVersion(), zanataId, details.getUsername(),
-                    details.getToken());
+            final CopyTransResource copyTransResource = proxyFactory.getCopyTransResource();
+            copyTransResource.startCopyTrans(details.getProject(), details.getVersion(), zanataId);
             performZanataRESTCallWaiting();
 
             if (waitForFinish) {
@@ -335,14 +334,6 @@ public class ZanataInterface {
         } catch (Exception e) {
             log.error("Failed to run copyTrans for " + zanataId, e);
         } finally {
-            /*
-             * If you are using RESTEasy client framework, and returning a Response from your service method, you will
-             * explicitly need to release the connection.
-             */
-            if (response != null) {
-                response.releaseConnection();
-            }
-
             performZanataRESTCallWaiting();
         }
 
@@ -355,11 +346,10 @@ public class ZanataInterface {
      * @param zanataId The Source Document id.
      * @return True if the source document has finished processing otherwise false.
      */
-    protected boolean isCopyTransCompleteForSourceDocument(final IFixedCopyTransResource copyTransResource, final String zanataId) {
-        final CopyTransStatus status = copyTransResource.getCopyTransStatus(details.getProject(), details.getVersion(), zanataId,
-                details.getUsername(), details.getToken());
+    protected boolean isCopyTransCompleteForSourceDocument(final CopyTransResource copyTransResource, final String zanataId) {
+        final CopyTransStatus status = copyTransResource.getCopyTransStatus(details.getProject(), details.getVersion(), zanataId);
         performZanataRESTCallWaiting();
-        return status.getPercentageComplete() >= 100;
+        return !status.isInProgress();
     }
 
     /**

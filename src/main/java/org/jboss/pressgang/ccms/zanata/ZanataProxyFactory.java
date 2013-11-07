@@ -29,16 +29,4 @@ public class ZanataProxyFactory extends org.zanata.rest.client.ZanataProxyFactor
             boolean logHttp) {
         super(base, username, apiKey, executor, clientApiVersion, logHttp);
     }
-
-    public IFixedSourceDocResource getFixedSourceDocResources(String projectSlug, String versionSlug) {
-        return createProxy(IFixedSourceDocResource.class, getFixedSourceDocResourcesURI(projectSlug, versionSlug));
-    }
-
-    public URI getFixedSourceDocResourcesURI(String projectSlug, String versionSlug) {
-        return super.getResourceURI(projectSlug, versionSlug);
-    }
-
-    public IFixedCopyTransResource getFixedCopyTransResource() {
-        return createProxy(IFixedCopyTransResource.class);
-    }
 }
