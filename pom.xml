@@ -18,8 +18,8 @@
 
     <scm>
         <url>https://github.com/pressgang-ccms/PressGangCCMSZanataInterface</url>
-        <connection>scm:git@github.com:pressgang-ccms/PressGangCCMSZanataInterface.git</connection>
-        <developerConnection>scm:git@github.com:pressgang-ccms/PressGangCCMSZanataInterface.git</developerConnection>
+        <connection>scm:git:git@github.com:pressgang-ccms/PressGangCCMSZanataInterface.git</connection>
+        <developerConnection>scm:git:git@github.com:pressgang-ccms/PressGangCCMSZanataInterface.git</developerConnection>
     </scm>
 
     <properties>
