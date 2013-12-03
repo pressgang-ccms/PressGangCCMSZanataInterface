@@ -10,7 +10,7 @@
 
     <groupId>org.jboss.pressgang.ccms</groupId>
     <artifactId>pressgang-ccms-zanata</artifactId>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.4-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>PressGang CCMS Zanata Interface</name>
@@ -23,7 +23,7 @@
     </scm>
 
     <properties>
-        <pressgang.ccms.version>1.3-SNAPSHOT</pressgang.ccms.version>
+        <pressgang.ccms.version>1.4-SNAPSHOT</pressgang.ccms.version>
         <zanata.version>3.1.0</zanata.version>
     </properties>
 
