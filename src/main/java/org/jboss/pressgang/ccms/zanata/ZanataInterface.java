@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.jboss.pressgang.ccms.utils.common.VersionUtilities;
 import org.jboss.resteasy.client.ClientResponse;
+import org.jboss.resteasy.client.cache.BrowserCache;
+import org.jboss.resteasy.client.cache.CacheInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.common.LocaleId;
@@ -52,11 +54,35 @@ public class ZanataInterface {
      *
      * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
      *                                  is specified in seconds.
+     * @param cache
+     */
+    public ZanataInterface(final double minZanataRESTCallInterval, final BrowserCache cache) {
+        this(minZanataRESTCallInterval, (String) null, cache);
+    }
+
+    /**
+     * Constructs the interface.
+     *
+     * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
+     *                                  is specified in seconds.
      * @param disableSSLCert            Whether or not the SSL Certificate check should be performed.
      */
     public ZanataInterface(final double minZanataRESTCallInterval, final boolean disableSSLCert) {
-        this(minZanataRESTCallInterval, new ZanataDetails(DEFAULT_DETAILS), DEFAULT_DETAILS.getProject(), disableSSLCert);
+        this(minZanataRESTCallInterval, new ZanataDetails(DEFAULT_DETAILS), disableSSLCert);
     }
+
+    /**
+     * Constructs the interface with a custom project
+     *
+     * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
+     *                                  is specified in seconds.
+     * @param zanataDetails             The zanata details to be used for this interface.
+     * @param disableSSLCert            Whether or not the SSL Certificate check should be performed.
+     */
+    public ZanataInterface(final double minZanataRESTCallInterval, final ZanataDetails zanataDetails, final boolean disableSSLCert) {
+        this(minZanataRESTCallInterval, zanataDetails, null, disableSSLCert);
+    }
+
 
     /**
      * Constructs the interface with a custom project
@@ -83,10 +109,32 @@ public class ZanataInterface {
      *
      * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
      *                                  is specified in seconds.
+     * @param projectOverride           The name of the Zanata project to work with, which will override the default specified.
+     */
+    public ZanataInterface(final double minZanataRESTCallInterval, final String projectOverride, final BrowserCache cache) {
+        this(minZanataRESTCallInterval, new ZanataDetails(DEFAULT_DETAILS), projectOverride, cache);
+    }
+
+    /**
+     * Constructs the interface with a custom project
+     *
+     * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
+     *                                  is specified in seconds.
      * @param zanataDetails             The zanata details to be used for this interface.
      */
     public ZanataInterface(final double minZanataRESTCallInterval, final ZanataDetails zanataDetails) {
-        this(minZanataRESTCallInterval, zanataDetails, null);
+        this(minZanataRESTCallInterval, zanataDetails, (String) null);
+    }
+
+    /**
+     * Constructs the interface with a custom project
+     *
+     * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
+     *                                  is specified in seconds.
+     * @param zanataDetails             The zanata details to be used for this interface.
+     */
+    public ZanataInterface(final double minZanataRESTCallInterval, final ZanataDetails zanataDetails, final BrowserCache cache) {
+        this(minZanataRESTCallInterval, zanataDetails, null, cache);
     }
 
     /**
@@ -108,10 +156,37 @@ public class ZanataInterface {
      *                                  is specified in seconds.
      * @param zanataDetails             The zanata details to be used for this interface.
      * @param projectOverride           The name of the Zanata project to work with, which will override the default specified.
+     */
+    protected ZanataInterface(final double minZanataRESTCallInterval, final ZanataDetails zanataDetails, final String projectOverride,
+            final BrowserCache browserCache) {
+        this(minZanataRESTCallInterval, zanataDetails, projectOverride, false, browserCache);
+    }
+
+    /**
+     * Constructs the interface with a custom project
+     *
+     * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
+     *                                  is specified in seconds.
+     * @param zanataDetails             The zanata details to be used for this interface.
+     * @param projectOverride           The name of the Zanata project to work with, which will override the default specified.
      * @param disableSSLCert            Whether or not the SSL Certificate check should be performed.
      */
     protected ZanataInterface(final double minZanataRESTCallInterval, final ZanataDetails zanataDetails, final String projectOverride,
             final boolean disableSSLCert) {
+        this(minZanataRESTCallInterval, zanataDetails, projectOverride, disableSSLCert, null);
+    }
+
+    /**
+     * Constructs the interface with a custom project
+     *
+     * @param minZanataRESTCallInterval The minimum amount of time that should be waited in between calls to Zanata. This value
+     *                                  is specified in seconds.
+     * @param zanataDetails             The zanata details to be used for this interface.
+     * @param projectOverride           The name of the Zanata project to work with, which will override the default specified.
+     * @param disableSSLCert            Whether or not the SSL Certificate check should be performed.
+     */
+    protected ZanataInterface(final double minZanataRESTCallInterval, final ZanataDetails zanataDetails, final String projectOverride,
+            final boolean disableSSLCert, final BrowserCache cache) {
         details = zanataDetails;
         if (projectOverride != null) {
             details.setProject(projectOverride);
@@ -132,6 +207,10 @@ public class ZanataInterface {
 
         proxyFactory = new ZanataProxyFactory(URI, details.getUsername(), details.getToken(), versionInfo, false, disableSSLCert);
         localeManager = ZanataLocaleManager.getInstance(details.getProject());
+
+        if (cache != null) {
+            proxyFactory.registerPrefixInterceptor(new CacheInterceptor(cache));
+        }
     }
 
     /**
@@ -140,7 +219,7 @@ public class ZanataInterface {
      * @param id The ID of the Document in Zanata.
      * @return The Zanata Source Document that matches the id passed, or null if it doesn't exist.
      */
-    public Resource getZanataResource(final String id) {
+    public Resource getZanataResource(final String id) throws NotModifiedException {
         ClientResponse<Resource> response = null;
         try {
             final ISourceDocResource client = proxyFactory.getSourceDocResource(details.getProject(), details.getVersion());
@@ -151,9 +230,15 @@ public class ZanataInterface {
             if (status == Response.Status.OK) {
                 final Resource entity = response.getEntity();
                 return entity;
+            } else if (status == Status.NOT_MODIFIED) {
+                throw new NotModifiedException();
             }
         } catch (final Exception ex) {
-            log.error("Failed to retrieve the Zanata Source Document", ex);
+            if (ex instanceof NotModifiedException) {
+                throw (NotModifiedException) ex;
+            } else {
+                log.error("Failed to retrieve the Zanata Source Document", ex);
+            }
         } finally {
             /*
              * If you are using RESTEasy client framework, and returning a Response from your service method, you will
@@ -268,8 +353,9 @@ public class ZanataInterface {
      * @param locale The locale of the translation to find.
      * @return null if the translation doesn't exist or an error occurred, otherwise the TranslationResource containing the
      *         Translation Strings (TextFlowTargets).
+     * @throws NotModifiedException Thrown if the translation has not been modified since it was last retrieved.
      */
-    public TranslationsResource getTranslations(final String id, final LocaleId locale) {
+    public TranslationsResource getTranslations(final String id, final LocaleId locale) throws NotModifiedException {
         ClientResponse<TranslationsResource> response = null;
         try {
             final ITranslatedDocResource client = proxyFactory.getTranslatedDocResource(details.getProject(), details.getVersion());
@@ -280,12 +366,18 @@ public class ZanataInterface {
             /* Remove the locale if it is forbidden */
             if (status == Response.Status.FORBIDDEN) {
                 localeManager.removeLocale(locale);
+            } else if (status == Status.NOT_MODIFIED) {
+                throw new NotModifiedException();
             } else if (status == Response.Status.OK) {
                 final TranslationsResource retValue = response.getEntity();
                 return retValue;
             }
         } catch (final Exception ex) {
-            log.error("Failed to retrieve the Zanata Translated Document", ex);
+            if (ex instanceof NotModifiedException) {
+                throw (NotModifiedException) ex;
+            } else {
+                log.error("Failed to retrieve the Zanata Translated Document", ex);
+            }
         } finally {
             /*
              * If you are using RESTEasy client framework, and returning a Response from your service method, you will
