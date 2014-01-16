@@ -447,8 +447,8 @@ public class ZanataInterface {
 
             if (waitForFinish) {
                 while (!isCopyTransCompleteForSourceDocument(copyTransResource, zanataId)) {
-                    // Sleep for 1 second
-                    Thread.sleep(1000);
+                    // Sleep for 3/4 of a second
+                    Thread.sleep(750);
                 }
             }
 
