@@ -10,6 +10,7 @@ import org.jboss.pressgang.ccms.utils.common.VersionUtilities;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.cache.BrowserCache;
 import org.jboss.resteasy.client.cache.CacheInterceptor;
+import org.jboss.resteasy.spi.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.common.LocaleId;
@@ -296,7 +297,7 @@ public class ZanataInterface {
      * @param resource The resource data to be used by Zanata to create the Document.
      * @return True if the document was successfully created, otherwise false.
      */
-    public boolean createFile(final Resource resource) {
+    public boolean createFile(final Resource resource) throws UnauthorizedException {
         return createFile(resource, true);
     }
 
@@ -307,7 +308,7 @@ public class ZanataInterface {
      * @param copyTrans Run copytrans on the server
      * @return True if the document was successfully created, otherwise false.
      */
-    public boolean createFile(final Resource resource, boolean copyTrans) {
+    public boolean createFile(final Resource resource, boolean copyTrans) throws UnauthorizedException {
         ClientResponse<String> response = null;
         try {
             final ISourceDocResource client = proxyFactory.getSourceDocResource(details.getProject(), details.getVersion());
@@ -325,6 +326,8 @@ public class ZanataInterface {
                 }
 
                 return true;
+            } else if (status == Status.UNAUTHORIZED) {
+                throw new UnauthorizedException();
             } else {
                 log.error("REST call to createResource() did not complete successfully. HTTP response code was " + status.getStatusCode() +
                         ". Reason was " + status.getReasonPhrase());
