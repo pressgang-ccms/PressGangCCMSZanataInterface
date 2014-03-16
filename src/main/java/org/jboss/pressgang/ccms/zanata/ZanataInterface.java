@@ -187,7 +187,7 @@ public class ZanataInterface {
      * @param disableSSLCert            Whether or not the SSL Certificate check should be performed.
      */
     protected ZanataInterface(final double minZanataRESTCallInterval, final ZanataDetails zanataDetails, final String projectOverride,
-            final boolean disableSSLCert, final BrowserCache cache) {
+            final boolean disableSSLCert, final BrowserCache cache) throws UnauthorizedException {
         details = zanataDetails;
         if (projectOverride != null) {
             details.setProject(projectOverride);
@@ -206,7 +206,16 @@ public class ZanataInterface {
         versionInfo.setVersionNo(VersionUtilities.getAPIVersion(LocaleId.class));
         versionInfo.setBuildTimeStamp(VersionUtilities.getAPIBuildTimestamp(LocaleId.class));
 
-        proxyFactory = new ZanataProxyFactory(URI, details.getUsername(), details.getToken(), versionInfo, false, disableSSLCert);
+        // Deal with Zanatas painful username/password check
+        try {
+            proxyFactory = new ZanataProxyFactory(URI, details.getUsername(), details.getToken(), versionInfo, false, disableSSLCert);
+        } catch (RuntimeException e) {
+            if (e.getMessage().startsWith("Incorrect username/password")) {
+                throw new UnauthorizedException(e.getMessage());
+            } else {
+                throw e;
+            }
+        }
         localeManager = ZanataLocaleManager.getInstance(details.getProject());
 
         if (cache != null) {

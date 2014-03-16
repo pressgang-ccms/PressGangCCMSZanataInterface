@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zanata.common.LocaleId;
 
 /**
@@ -13,6 +15,7 @@ import org.zanata.common.LocaleId;
  * lock the list of locales to ensure thread safety since the locales maybe accessed from multiple concurrent threads.
  */
 public class ZanataLocaleManager {
+    private static final Logger LOG = LoggerFactory.getLogger(ZanataLocaleManager.class);
 
     private List<LocaleId> locales = new ArrayList<LocaleId>();
 
@@ -79,7 +82,7 @@ public class ZanataLocaleManager {
      * @param locale The locale to be removed.
      */
     public void removeLocale(final LocaleId locale) {
-        System.out.println("Removing " + locale + " from further sync requests.");
+        LOG.info("Removing " + locale + " from further sync requests.");
         synchronized (locales) {
             if (locales.contains(locale))
                 locales.remove(locale);

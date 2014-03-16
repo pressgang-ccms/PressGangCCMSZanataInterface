@@ -1,9 +1,12 @@
 package org.jboss.pressgang.ccms.zanata;
 
+import java.io.Serializable;
+
 /**
  * A utility class to pull out the Zanata details from the system properties
  */
-public class ZanataDetails {
+public class ZanataDetails implements Serializable {
+    private static final long serialVersionUID = -7973647940523261634L;
     private String server;
     private String project;
     private String version;
