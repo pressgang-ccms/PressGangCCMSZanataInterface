@@ -19,22 +19,26 @@ import org.jboss.resteasy.util.WeightedMediaType;
 @SuppressWarnings("unchecked")
 public class ETagInterceptor implements ClientExecutionInterceptor, AcceptedByMethod {
     private final ETagCache cache;
-    private final List<Class<?>> ignoredResources;
+    private final List<Class<?>> allowedResources;
 
     public ETagInterceptor(final ETagCache cache) {
         this.cache = cache;
-        ignoredResources = new ArrayList<Class<?>>();
+        allowedResources = null;
     }
 
-    public ETagInterceptor(final ETagCache cache, final List<Class<?>> ignoredResources) {
+    public ETagInterceptor(final ETagCache cache, final List<Class<?>> allowedResources) {
         this.cache = cache;
-        this.ignoredResources = ignoredResources;
+        this.allowedResources = allowedResources;
     }
 
     public boolean accept(final Class declaring, final Method method) {
         if (declaring == null || method == null) return true;
         if (method.isAnnotationPresent(GET.class)) {
-            return !ignoredResources.contains(declaring);
+            if (allowedResources == null) {
+                return true;
+            } else {
+                return allowedResources.contains(declaring);
+            }
         } else {
             return false;
         }
