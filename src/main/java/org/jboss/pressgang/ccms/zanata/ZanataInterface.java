@@ -344,6 +344,9 @@ public class ZanataInterface {
 
         } catch (final Exception ex) {
             log.error("Failed to create the Zanata Document", ex);
+            if (ex instanceof UnauthorizedException) {
+                throw (UnauthorizedException) ex;
+            }
         } finally {
             /*
              * If you are using RESTEasy client framework, and returning a Response from your service method, you will
