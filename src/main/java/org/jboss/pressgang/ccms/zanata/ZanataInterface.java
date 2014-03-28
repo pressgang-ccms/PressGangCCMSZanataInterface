@@ -30,7 +30,6 @@ public class ZanataInterface {
     private final ZanataProxyFactory proxyFactory;
     private final ZanataLocaleManager localeManager;
     private final Long minZanataRESTCallInterval;
-    private long lastRESTCallTime = 0;
 
     /**
      * Constructs the interface.
@@ -509,17 +508,10 @@ public class ZanataInterface {
         /* No need to wait when the call interval is nothing */
         if (minZanataRESTCallInterval <= 0) return;
 
-        long currentTime = System.currentTimeMillis();
-        /* Check if the current time is less than the last call plus the minimum wait time */
-        if (currentTime < (lastRESTCallTime + minZanataRESTCallInterval)) {
-            try {
-                Thread.sleep(minZanataRESTCallInterval);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        try {
+            Thread.sleep(minZanataRESTCallInterval);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-        
-        /* Set the current time to the last call time. */
-        lastRESTCallTime = System.currentTimeMillis();
     }
 }
