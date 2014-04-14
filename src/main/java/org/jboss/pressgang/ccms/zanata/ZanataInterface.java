@@ -445,6 +445,45 @@ public class ZanataInterface {
     }
 
     /**
+     * Delete the translations for a Document from Zanata.
+     * <p/>
+     * Note: This method should be used with extreme care.
+     *
+     * @param id     The ID of the document in Zanata to be deleted.
+     * @param locale The locale of the translation to be deleted.
+     * @return True if the document was successfully deleted, otherwise false.
+     */
+    public boolean deleteTranslation(final String id, final LocaleId locale) {
+        performZanataRESTCallWaiting();
+        ClientResponse<String> response = null;
+        try {
+            final ITranslatedDocResource client = proxyFactory.getTranslatedDocResource(details.getProject(), details.getVersion());
+            response = client.deleteTranslations(id, locale);
+
+            final Status status = Response.Status.fromStatusCode(response.getStatus());
+
+            if (status == Response.Status.OK) {
+                final String entity = response.getEntity();
+                if (entity.trim().length() != 0) log.info(entity);
+                return true;
+            } else {
+                log.error("REST call to deleteResource() did not complete successfully. HTTP response code was " + status.getStatusCode() +
+                        ". Reason was " + status.getReasonPhrase());
+            }
+        } catch (final Exception ex) {
+            log.error("Failed to delete the Zanata Translation", ex);
+        } finally {
+            /*
+             * If you are using RESTEasy client framework, and returning a Response from your service method, you will
+             * explicitly need to release the connection.
+             */
+            if (response != null) response.releaseConnection();
+        }
+
+        return false;
+    }
+
+    /**
      * Run copy trans against a Source Document in zanata and then wait for it to complete
      *
      * @param zanataId      The id of the document to run copytrans for.
