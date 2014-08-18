@@ -21,6 +21,9 @@ package org.jboss.pressgang.ccms.zanata;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 /**
  * A utility class to pull out the Zanata details from the system properties
  */
@@ -94,5 +97,29 @@ public class ZanataDetails implements Serializable {
         } else {
             return server + (server.endsWith("/") ? "" : "/") + "seam/resource/restv1/projects/p/" + project + "/iterations/i/" + version + "/r";
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (!(o instanceof ZanataDetails)) return false;
+
+        final ZanataDetails other = (ZanataDetails) o;
+        return new EqualsBuilder()
+                .append(server, other.server)
+                .append(project, other.project)
+                .append(version, other.version)
+                .append(username, other.username)
+                .append(version, other.version)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+                .append(server)
+                .append(project)
+                .append(version)
+                .toHashCode();
     }
 }
